@@ -53,6 +53,7 @@ buflint: #@HELP run the "buf check lint" command on the proto files in 'api'
 
 onos-exporter-docker: # @HELP build onos-exporter Docker image
 onos-exporter-docker:
+	@go mod vendor
 	docker build . -f build/onos-exporter/Dockerfile \
 		-t onosproject/onos-exporter:${ONOS_EXPORTER_VERSION}
 
