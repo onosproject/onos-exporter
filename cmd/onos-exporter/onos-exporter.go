@@ -6,6 +6,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	"github.com/onosproject/onos-lib-go/pkg/logging"
 
@@ -24,7 +26,21 @@ const (
 
 var log = logging.GetLogger("main")
 
+var fatalErr error
+
+func fatal(e error) {
+	fmt.Println(e)
+	flag.PrintDefaults()
+	fatalErr = e
+}
+
 func main() {
+	defer func() {
+		if fatalErr != nil {
+			os.Exit(1)
+		}
+	}()
+
 	address := flag.String("address", endpoint_address, "Exporter endpoint address:port or just :port")
 	path := flag.String("path", endpoint_path, "Exporter endpoint path be used to export kpis")
 	mode := flag.String("mode", exporter_mode, "Exporter mode (e.g., prometheus, ...)")
@@ -40,22 +56,35 @@ func main() {
 
 	log.Info("Starting onos-exporter")
 
+	cfgs := map[string]export.CollectorConfig{
+		export.ONOSE2T: {
+			ServiceAddress: *e2tEndpoint,
+		},
+		export.ONOSE2SUB: {
+			ServiceAddress: *e2subEndpoint,
+		},
+		export.ONOSXAPPPCI: {
+			ServiceAddress: *xappPciEndpoint,
+		},
+		export.ONOSXAPPKPIMON: {
+			ServiceAddress: *xappKpimonEndpoint,
+		},
+	}
+
 	cfg := export.Config{
-		Address:            *address,
-		Path:               *path,
-		Mode:               *mode,
-		CAPath:             *caPath,
-		KeyPath:            *keyPath,
-		CertPath:           *certPath,
-		E2tEndpoint:        *e2tEndpoint,
-		E2subEndpoint:      *e2subEndpoint,
-		XappPciEndpoint:    *xappPciEndpoint,
-		XappKpimonEndpoint: *xappKpimonEndpoint,
+		Address:           *address,
+		Path:              *path,
+		Mode:              *mode,
+		CAPath:            *caPath,
+		KeyPath:           *keyPath,
+		CertPath:          *certPath,
+		CollectorsConfigs: cfgs,
 	}
 
 	exporter := export.NewExporter(cfg)
 
 	if err := exporter.Run(); err != nil {
-		log.Fatal("onos exporter error %s", err)
+		log.Errorf("onos exporter error")
+		fatal(err)
 	}
 }

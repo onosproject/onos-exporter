@@ -11,12 +11,20 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var log = logging.GetLogger("export", "prom")
+var (
+	log = logging.GetLogger("export", "prom")
 
-// onose2tCollectorPrometheus defines a prometheus collector
-// for the Onose2tCollector. Only the E2tEndpoint service address
-// field is required by Onose2tCollector, other fields
-// might be added as needed by it.
+	// All the names of collectors that prometheus exporter instantiates.
+	collectorNames = []string{
+		ONOSE2T,
+		ONOSE2SUB,
+		ONOSXAPPKPIMON,
+		ONOSXAPPPCI,
+	}
+)
+
+// CollectorsPrometheus defines a prometheus collector
+// for all collectors.
 type CollectorsPrometheus struct {
 	collectors []collect.Collector
 }
@@ -28,11 +36,7 @@ type CollectorsPrometheus struct {
 // The function collect.KPIs performs the collection of each collector
 // list of KPIs, and aggregates them in onosKPIs var.
 func (c *CollectorsPrometheus) Retrieve(ch chan<- prometheus.Metric) error {
-	onosKPIs, err := collect.KPIs(c.collectors)
-	if err != nil {
-		log.Errorf("onos collector error %s", err)
-		return err
-	}
+	onosKPIs := collect.KPIs(c.collectors)
 
 	for _, kpi := range onosKPIs {
 		promMetrics, err := kpi.PrometheusFormat()
@@ -44,7 +48,6 @@ func (c *CollectorsPrometheus) Retrieve(ch chan<- prometheus.Metric) error {
 				ch <- m
 			}
 		}
-
 	}
 
 	return nil
@@ -54,18 +57,27 @@ func (c *CollectorsPrometheus) Retrieve(ch chan<- prometheus.Metric) error {
 // the prometheus exporter. Each collector implements the
 // prom.Collector interface behavior via the method Collect.
 func initCollectorsPrometheus(config Config) prom.Collector {
-	e2tCollector := collect.Onose2tCollector{E2tServiceAddress: config.E2tEndpoint}
-	e2subCollector := collect.Onose2subCollector{E2subServiceAddress: config.E2subEndpoint}
-	xappPciCollector := collect.XappPciCollector{XappPciServiceAddress: config.XappPciEndpoint}
-	xappKpimonCollector := collect.XappKpimonCollector{XappKpimonServiceAddress: config.XappKpimonEndpoint}
+	collectors := []collect.Collector{}
+
+	for _, collectorName := range collectorNames {
+		collectorConfig, ok := config.CollectorsConfigs[collectorName]
+
+		if ok {
+			collector, err := collect.CreateCollector(collectorName, collectorConfig.ServiceAddress)
+
+			if err != nil {
+				log.Errorf("%s not added to collectors %s", collectorName, err)
+			} else {
+				collectors = append(collectors, collector)
+			}
+
+		} else {
+			log.Errorf("%s not added to collectors no configuration provided", collectorName)
+		}
+	}
 
 	return &CollectorsPrometheus{
-		collectors: []collect.Collector{
-			e2tCollector,
-			e2subCollector,
-			xappPciCollector,
-			xappKpimonCollector,
-		},
+		collectors: collectors,
 	}
 }
 

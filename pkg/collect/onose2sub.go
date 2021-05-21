@@ -13,31 +13,26 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	onose2subConfig = InitConfig("onos-e2sub")
-)
-
-// Onose2subCollector is the onos e2sub collector.
+// onose2subCollector is the onos e2sub collector.
 // It extracts all the e2sub related kpis using the Collect method.
-type Onose2subCollector struct {
-	E2subServiceAddress string
+type onose2subCollector struct {
+	collector
 }
 
 // Collect implements the Collector interface behavior for
 // Onose2subCollector, returning a list of kpis.KPI.
-func (col Onose2subCollector) Collect() ([]kpis.KPI, error) {
+func (col *onose2subCollector) Collect() ([]kpis.KPI, error) {
 	kpis := []kpis.KPI{}
 
-	err := onose2subConfig.set(map[string]string{addressKey: col.E2subServiceAddress})
-	if err != nil {
-		return kpis, err
+	if len(col.config.getAddress()) == 0 {
+		return kpis, fmt.Errorf("Onose2subCollector Collect missing service address")
 	}
 
 	conn, err := GetConnection(
-		onose2subConfig.getAddress(),
-		onose2subConfig.getCertPath(),
-		onose2subConfig.getKeyPath(),
-		onose2subConfig.noTLS(),
+		col.config.getAddress(),
+		col.config.getCertPath(),
+		col.config.getKeyPath(),
+		col.config.noTLS(),
 	)
 	if err != nil {
 		return kpis, err

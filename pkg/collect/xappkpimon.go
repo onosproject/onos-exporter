@@ -6,6 +6,7 @@ package collect
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	kpimonapi "github.com/onosproject/onos-api/go/onos/kpimon"
@@ -13,31 +14,26 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	xappKpimonConfig = InitConfig("onos-xappKpimon")
-)
-
-// XappKpimonCollector is the onos xapp kpm collector.
+// xappKpimonCollector is the onos xapp kpm collector.
 // It extracts all the kpm related kpis using the Collect method.
-type XappKpimonCollector struct {
-	XappKpimonServiceAddress string
+type xappKpimonCollector struct {
+	collector
 }
 
 // Collect implements the Collector interface behavior for
 // XappKpimonCollector, returning a list of kpis.KPI.
-func (col XappKpimonCollector) Collect() ([]kpis.KPI, error) {
+func (col *xappKpimonCollector) Collect() ([]kpis.KPI, error) {
 	kpis := []kpis.KPI{}
 
-	err := xappKpimonConfig.set(map[string]string{addressKey: col.XappKpimonServiceAddress})
-	if err != nil {
-		return kpis, err
+	if len(col.config.getAddress()) == 0 {
+		return kpis, fmt.Errorf("XappKpimonCollector Collect missing service address")
 	}
 
 	conn, err := GetConnection(
-		xappKpimonConfig.getAddress(),
-		xappKpimonConfig.getCertPath(),
-		xappKpimonConfig.getKeyPath(),
-		xappKpimonConfig.noTLS(),
+		col.config.getAddress(),
+		col.config.getCertPath(),
+		col.config.getKeyPath(),
+		col.config.noTLS(),
 	)
 	if err != nil {
 		return kpis, err

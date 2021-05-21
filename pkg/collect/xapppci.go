@@ -6,6 +6,7 @@ package collect
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	pciapi "github.com/onosproject/onos-api/go/onos/pci"
@@ -13,31 +14,26 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	xappPciConfig = InitConfig("onos-xappPci")
-)
-
-// XappPciCollector is the onos xapp pci collector.
+// xappPciCollector is the onos xapp pci collector.
 // It extracts all the pci related kpis using the Collect method.
-type XappPciCollector struct {
-	XappPciServiceAddress string
+type xappPciCollector struct {
+	collector
 }
 
 // Collect implements the Collector interface behavior for
 // XappPciCollector, returning a list of kpis.KPI.
-func (col XappPciCollector) Collect() ([]kpis.KPI, error) {
+func (col *xappPciCollector) Collect() ([]kpis.KPI, error) {
 	kpis := []kpis.KPI{}
 
-	err := xappPciConfig.set(map[string]string{addressKey: col.XappPciServiceAddress})
-	if err != nil {
-		return kpis, err
+	if len(col.config.getAddress()) == 0 {
+		return kpis, fmt.Errorf("XappPciCollector Collect missing service address")
 	}
 
 	conn, err := GetConnection(
-		xappPciConfig.getAddress(),
-		xappPciConfig.getCertPath(),
-		xappPciConfig.getKeyPath(),
-		xappPciConfig.noTLS(),
+		col.config.getAddress(),
+		col.config.getCertPath(),
+		col.config.getKeyPath(),
+		col.config.noTLS(),
 	)
 	if err != nil {
 		return kpis, err

@@ -15,17 +15,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Var defitions of Configuration needed for each collector.
-// Multiple collectors can be defined similar to this file, with their
-// respective configs specified as below.
-var (
-	onose2tConfig = InitConfig("onos-e2t")
-)
-
-// Onose2tCollector is the onos e2t collector.
+// onose2tCollector is the onos e2t collector.
 // It extracts all the e2t related kpis using the Collect method.
-type Onose2tCollector struct {
-	E2tServiceAddress string
+type onose2tCollector struct {
+	collector
 }
 
 // Collect implements the collector of the onos e2t service kpis.
@@ -34,19 +27,18 @@ type Onose2tCollector struct {
 // This function can create go routines if needed in order to extract multiple
 // onos e2t kpis using the same connection and multiple calls to functions
 // defined in the file onose2t.go.
-func (col Onose2tCollector) Collect() ([]kpis.KPI, error) {
+func (col *onose2tCollector) Collect() ([]kpis.KPI, error) {
 	kpis := []kpis.KPI{}
 
-	err := onose2tConfig.set(map[string]string{addressKey: col.E2tServiceAddress})
-	if err != nil {
-		return kpis, err
+	if len(col.config.getAddress()) == 0 {
+		return kpis, fmt.Errorf("Onose2tCollector Collect missing service address")
 	}
 
 	conn, err := GetConnection(
-		onose2tConfig.getAddress(),
-		onose2tConfig.getCertPath(),
-		onose2tConfig.getKeyPath(),
-		onose2tConfig.noTLS(),
+		col.config.getAddress(),
+		col.config.getCertPath(),
+		col.config.getKeyPath(),
+		col.config.noTLS(),
 	)
 	if err != nil {
 		return kpis, err

@@ -46,7 +46,7 @@ func NewConfig(subsystem string) Configuration {
 		opts[optName] = ""
 	}
 
-	return &config{
+	return config{
 		subsystem: subsystem,
 		options:   opts,
 	}
@@ -59,13 +59,13 @@ type config struct {
 	options   map[string]string
 }
 
-func (c *config) init() {
+func (c config) init() {
 	for opt := range c.options {
 		c.options[opt] = viper.GetString(opt)
 	}
 }
 
-func (c *config) set(options map[string]string) error {
+func (c config) set(options map[string]string) error {
 	for opt, value := range options {
 		if _, ok := c.options[opt]; ok {
 			c.options[opt] = value
@@ -79,7 +79,7 @@ func (c *config) set(options map[string]string) error {
 	return nil
 }
 
-func (c *config) getAddress() string {
+func (c config) getAddress() string {
 	address := c.options[addressKey]
 	if address == "" {
 		return viper.GetString(addressKey)
@@ -87,17 +87,17 @@ func (c *config) getAddress() string {
 	return address
 }
 
-func (c *config) getCertPath() string {
+func (c config) getCertPath() string {
 	certPath := c.options[tlsCertPathKey]
 	return certPath
 }
 
-func (c *config) getKeyPath() string {
+func (c config) getKeyPath() string {
 	keyPath := c.options[tlsKeyPathKey]
 	return keyPath
 }
 
-func (c *config) noTLS() bool {
+func (c config) noTLS() bool {
 	tls := c.options[noTLSKey]
 
 	if tls == "" {
