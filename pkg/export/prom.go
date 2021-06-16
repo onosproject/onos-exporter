@@ -17,7 +17,6 @@ var (
 	// All the names of collectors that prometheus exporter instantiates.
 	collectorNames = []string{
 		ONOSE2T,
-		ONOSE2SUB,
 		ONOSXAPPKPIMON,
 		ONOSXAPPPCI,
 	}

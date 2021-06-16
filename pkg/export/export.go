@@ -11,7 +11,6 @@ import "github.com/onosproject/onos-exporter/pkg/collect"
 // at the collect package.
 const (
 	ONOSE2T        = collect.ONOSE2T
-	ONOSE2SUB      = collect.ONOSE2SUB
 	ONOSXAPPKPIMON = collect.ONOSXAPPKPIMON
 	ONOSXAPPPCI    = collect.ONOSXAPPPCI
 )

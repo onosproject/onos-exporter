@@ -23,9 +23,6 @@ const (
 	xappPciNumConflictsKPIName     = "conflicts"
 	xappPciNumConflictsDescription = "The number of xapp pci conflicts per cell"
 
-	onosE2subsKPIName     = "subscriptions"
-	onosE2subsDescription = "The subscriptions of onos e2sub"
-
 	xappkpimonKPIName     = "kpm"
 	xappkpimonDescription = "The KPM related metrics"
 )
@@ -36,15 +33,6 @@ func OnosE2tConnections() *onosE2tConnections {
 	return &onosE2tConnections{
 		name:        onosE2tConnectionsKPIName,
 		description: onosE2tConnectionsKPIDescription,
-	}
-}
-
-// OnosE2subs defines the factory implementation of a kpi
-// onosE2subs having a well defined name and description.
-func OnosE2subs() *onosE2subs {
-	return &onosE2subs{
-		name:        onosE2subsKPIName,
-		description: onosE2subsDescription,
 	}
 }
 

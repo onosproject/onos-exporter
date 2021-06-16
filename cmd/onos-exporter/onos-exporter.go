@@ -19,9 +19,8 @@ const (
 	endpoint_path      = "/metrics"
 	exporter_mode      = "prometheus"
 	e2tEndpoint        = "onos-e2t:5150"
-	e2subEndpoint      = "onos-e2sub:5150"
 	xappPciEndpoint    = "onos-pci:5150"
-	xappKpimonEndpoint = "onos-kpimon-v2:5150"
+	xappKpimonEndpoint = "onos-kpimon:5150"
 )
 
 var log = logging.GetLogger("main")
@@ -48,7 +47,6 @@ func main() {
 	keyPath := flag.String("keyPath", "", "path to client private key")
 	certPath := flag.String("certPath", "", "path to client certificate")
 	e2tEndpoint := flag.String("e2tEndpoint", e2tEndpoint, "E2T service endpoint")
-	e2subEndpoint := flag.String("e2subEndpoint", e2subEndpoint, "E2Sub service endpoint")
 	xappPciEndpoint := flag.String("xappPciEndpoint", xappPciEndpoint, "XApp PCI service endpoint")
 	xappKpimonEndpoint := flag.String("xappKpimonEndpoint", xappKpimonEndpoint, "XApp Kpimon service endpoint")
 
@@ -59,9 +57,6 @@ func main() {
 	cfgs := map[string]export.CollectorConfig{
 		export.ONOSE2T: {
 			ServiceAddress: *e2tEndpoint,
-		},
-		export.ONOSE2SUB: {
-			ServiceAddress: *e2subEndpoint,
 		},
 		export.ONOSXAPPPCI: {
 			ServiceAddress: *xappPciEndpoint,

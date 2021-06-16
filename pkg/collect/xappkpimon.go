@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strings"
 
+	prototypes "github.com/gogo/protobuf/types"
+
 	kpimonapi "github.com/onosproject/onos-api/go/onos/kpimon"
 	"github.com/onosproject/onos-exporter/pkg/kpis"
 	"google.golang.org/grpc"
@@ -58,30 +60,61 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 	xappKpiMonKPI := kpis.XappKpiMon()
 	xappKpiMonKPI.Data = make(map[string]kpis.KpimonData)
 
-	request := kpimonapi.GetRequest{
-		Id: "kpimon",
-	}
+	request := kpimonapi.GetRequest{}
 	client := kpimonapi.NewKpimonClient(conn)
 
-	respGetMetrics, err := client.GetMetrics(context.Background(), &request)
+	respGetMeasurement, err := client.ListMeasurements(context.Background(), &request)
 	if err != nil {
 		return xappKpiMonKPI, err
 	}
 
-	for k, v := range respGetMetrics.GetObject().GetAttributes() {
-		ids := strings.Split(k, ":")
-		tmpCid := ids[0]
-		tmpPlmnID := ids[1]
-		tmpEgnbID := ids[2]
-		tmpMetricType := ids[3]
-		// tmpTimestamp := ids[4]
+	for key, measItems := range respGetMeasurement.GetMeasurements() {
+		for _, measItem := range measItems.MeasurementItems {
+			for _, measRecord := range measItem.MeasurementRecords {
+				// timeStamp := measRecord.Timestamp
+				measName := measRecord.MeasurementName
+				measValue := measRecord.MeasurementValue
 
-		xappKpiMonKPI.Data[k] = kpis.KpimonData{
-			CellID:     tmpCid,
-			PlmnID:     tmpPlmnID,
-			EgnbID:     tmpEgnbID,
-			MetricType: tmpMetricType,
-			Value:      v,
+				ids := strings.Split(key, ":")
+				tmpE2ID := ids[0]
+				tmpCellID := ids[1]
+
+				var value interface{}
+
+				switch {
+				case prototypes.Is(measValue, &kpimonapi.IntegerValue{}):
+					v := kpimonapi.IntegerValue{}
+					err := prototypes.UnmarshalAny(measValue, &v)
+					if err != nil {
+						log.Warn(err)
+					}
+					value = v.GetValue()
+
+				case prototypes.Is(measValue, &kpimonapi.RealValue{}):
+					v := kpimonapi.RealValue{}
+					err := prototypes.UnmarshalAny(measValue, &v)
+					if err != nil {
+						log.Warn(err)
+					}
+					value = v.GetValue()
+
+				case prototypes.Is(measValue, &kpimonapi.NoValue{}):
+					v := kpimonapi.NoValue{}
+					err := prototypes.UnmarshalAny(measValue, &v)
+					if err != nil {
+						log.Warn(err)
+					}
+					value = v.GetValue()
+
+				}
+
+				xappKpiMonKPI.Data[key] = kpis.KpimonData{
+					CellID:     tmpCellID,
+					E2ID:       tmpE2ID,
+					MetricType: measName,
+					Value:      fmt.Sprintf("%v", value),
+				}
+			}
 		}
 	}
 

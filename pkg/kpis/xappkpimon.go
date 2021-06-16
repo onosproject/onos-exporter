@@ -20,6 +20,7 @@ var (
 )
 
 type KpimonData struct {
+	E2ID       string
 	CellID     string
 	PlmnID     string
 	EgnbID     string
@@ -52,13 +53,14 @@ func (c *xappkpimon) PrometheusFormat() ([]prometheus.Metric, error) {
 			return metrics, err
 		}
 
-		c.Labels = []string{"cellid", "egnbid", "plmnid"}
+		c.Labels = []string{"e2id", "cellid", "egnbid", "plmnid"}
 		metricDesc := xappKpimonBuilder.NewMetricDesc(metricName, c.description, c.Labels, staticLabelsXappKpimon)
 
 		metric := xappKpimonBuilder.MustNewConstMetric(
 			metricDesc,
 			prometheus.GaugeValue,
 			float64(metricValue),
+			data.E2ID,
 			data.CellID,
 			data.EgnbID,
 			data.PlmnID,

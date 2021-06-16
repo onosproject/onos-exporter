@@ -15,7 +15,6 @@ import (
 // List of available collectors implemented.
 const (
 	ONOSE2T        = "onos-e2t"
-	ONOSE2SUB      = "onos-e2sub"
 	ONOSXAPPKPIMON = "onos-xappkpimon"
 	ONOSXAPPPCI    = "onos-xapppci"
 )
@@ -53,28 +52,21 @@ func CreateCollector(name, serviceAddress string) (Collector, error) {
 	case ONOSE2T:
 		return &onose2tCollector{
 			collector: collector{
-				name:   serviceAddress,
-				config: colConfig,
-			},
-		}, nil
-	case ONOSE2SUB:
-		return &onose2subCollector{
-			collector: collector{
-				name:   serviceAddress,
+				name:   name,
 				config: colConfig,
 			},
 		}, nil
 	case ONOSXAPPKPIMON:
 		return &xappKpimonCollector{
 			collector: collector{
-				name:   serviceAddress,
+				name:   name,
 				config: colConfig,
 			},
 		}, nil
 	case ONOSXAPPPCI:
 		return &xappPciCollector{
 			collector: collector{
-				name:   serviceAddress,
+				name:   name,
 				config: colConfig,
 			},
 		}, nil
