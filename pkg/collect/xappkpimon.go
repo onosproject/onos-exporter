@@ -108,7 +108,8 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 
 				}
 
-				xappKpiMonKPI.Data[key] = kpis.KpimonData{
+				uKey := fmt.Sprintf("%s:%s", key, measName)
+				xappKpiMonKPI.Data[uKey] = kpis.KpimonData{
 					CellID:     tmpCellID,
 					E2ID:       tmpE2ID,
 					MetricType: measName,
