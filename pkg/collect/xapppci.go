@@ -7,7 +7,6 @@ package collect
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	pciapi "github.com/onosproject/onos-api/go/onos/pci"
 	"github.com/onosproject/onos-exporter/pkg/kpis"
@@ -55,26 +54,32 @@ func (col *xappPciCollector) Collect() ([]kpis.KPI, error) {
 // data structure of the kpis.XappPciNumConflicts KPI.
 func listNumConflictsAll(conn *grpc.ClientConn) (kpis.KPI, error) {
 	numConflictsKPI := kpis.XappPciNumConflicts()
-	numConflictsKPI.NumberConflicts = make(map[string]float64)
+	numConflictsKPI.Cells = make(map[string]kpis.CellInfo)
 
-	request := pciapi.GetRequest{
-		Id: "pci",
-	}
-
+	request := pciapi.GetConflictsRequest{}
 	client := pciapi.NewPciClient(conn)
-
-	response, err := client.GetNumConflictsAll(context.Background(), &request)
-
+	response, err := client.GetConflicts(context.Background(), &request)
 	if err != nil {
 		return numConflictsKPI, err
 	}
 
-	for cellID, numConflictsStr := range response.GetObject().GetAttributes() {
-		numConflicts, err := strconv.ParseInt(numConflictsStr, 0, 64)
-		if err != nil {
-			return numConflictsKPI, err
+	for _, cell := range response.GetCells() {
+
+		cellID := fmt.Sprintf("%x", cell.Id)
+		nodeID := cell.NodeId
+		cellType := cell.CellType.String()
+		cellPci := fmt.Sprintf("%d", cell.Pci)
+
+		cellDlearfcn := float64(cell.Dlearfcn)
+
+		cInfo := kpis.CellInfo{
+			CellID:       cellID,
+			NodeID:       nodeID,
+			CellType:     cellType,
+			CellPci:      cellPci,
+			CellDlearfcn: cellDlearfcn,
 		}
-		numConflictsKPI.NumberConflicts[cellID] = float64(numConflicts)
+		numConflictsKPI.Cells[cellID] = cInfo
 	}
 
 	return numConflictsKPI, nil

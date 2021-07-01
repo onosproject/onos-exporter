@@ -16,15 +16,23 @@ var (
 	xappPciBuilder      = prom.NewBuilder("onos", "xapppci", staticLabelsXappPci)
 )
 
+type CellInfo struct {
+	CellID       string
+	NodeID       string
+	CellType     string
+	CellPci      string
+	CellDlearfcn float64
+}
+
 // xapppciNumConflicts defines the common data that can be used
 // to output the format of a KPI (e.g., PrometheusFormat).
 // NumberConflicts stores the number of conflicts per cell id.
 type xappPciNumConflicts struct {
-	name            string
-	description     string
-	Labels          []string
-	LabelValues     []string
-	NumberConflicts map[string]float64
+	name        string
+	description string
+	Labels      []string
+	LabelValues []string
+	Cells       map[string]CellInfo
 }
 
 // PrometheusFormat implements the contract behavior of the kpis.KPI
@@ -32,15 +40,18 @@ type xappPciNumConflicts struct {
 func (c *xappPciNumConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
-	c.Labels = []string{"cellid"}
+	c.Labels = []string{"cellid", "celltype", "nodeid", "cellpci"}
 	metricDesc := xappPciBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsXappPci)
 
-	for cellID, numConflicts := range c.NumberConflicts {
+	for _, cell := range c.Cells {
 		metric := xappPciBuilder.MustNewConstMetric(
 			metricDesc,
 			prometheus.GaugeValue,
-			numConflicts,
-			cellID,
+			cell.CellDlearfcn,
+			cell.CellID,
+			cell.CellType,
+			cell.NodeID,
+			cell.CellPci,
 		)
 		metrics = append(metrics, metric)
 	}
