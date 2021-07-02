@@ -4,17 +4,6 @@
 
 package export
 
-import "github.com/onosproject/onos-exporter/pkg/collect"
-
-// Consts define the names of the available collector names.
-// It defines those names based on the collectors available
-// at the collect package.
-const (
-	ONOSE2T        = collect.ONOSE2T
-	ONOSXAPPKPIMON = collect.ONOSXAPPKPIMON
-	ONOSXAPPPCI    = collect.ONOSXAPPPCI
-)
-
 // CollectorConfig states the parameters that enables a Collector.
 type CollectorConfig struct {
 	ServiceAddress string

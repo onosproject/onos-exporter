@@ -6,6 +6,7 @@ package export
 
 import (
 	"github.com/onosproject/onos-exporter/pkg/collect"
+	"github.com/onosproject/onos-exporter/pkg/config"
 	"github.com/onosproject/onos-lib-go/pkg/logging"
 	"github.com/onosproject/onos-lib-go/pkg/prom"
 	"github.com/prometheus/client_golang/prometheus"
@@ -16,9 +17,10 @@ var (
 
 	// All the names of collectors that prometheus exporter instantiates.
 	collectorNames = []string{
-		ONOSE2T,
-		ONOSXAPPKPIMON,
-		ONOSXAPPPCI,
+		config.ONOSE2T,
+		config.ONOSXAPPKPIMON,
+		config.ONOSXAPPPCI,
+		config.ONOSTOPO,
 	}
 )
 
