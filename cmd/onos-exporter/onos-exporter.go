@@ -11,16 +11,18 @@ import (
 
 	"github.com/onosproject/onos-lib-go/pkg/logging"
 
+	"github.com/onosproject/onos-exporter/pkg/config"
 	"github.com/onosproject/onos-exporter/pkg/export"
 )
 
 const (
-	endpoint_address   = ":9861"
-	endpoint_path      = "/metrics"
-	exporter_mode      = "prometheus"
-	e2tEndpoint        = "onos-e2t:5150"
-	xappPciEndpoint    = "onos-pci:5150"
-	xappKpimonEndpoint = "onos-kpimon:5150"
+	endpoint_address          = ":9861"
+	endpoint_path             = "/metrics"
+	exporter_mode             = "prometheus"
+	e2tEndpointDefault        = "onos-e2t:5150"
+	xappPciEndpointDefault    = "onos-pci:5150"
+	xappKpimonEndpointDefault = "onos-kpimon:5150"
+	topoEndpointDefault       = "onos-topo:5150"
 )
 
 var log = logging.GetLogger("main")
@@ -46,23 +48,27 @@ func main() {
 	caPath := flag.String("caPath", "", "path to CA certificate")
 	keyPath := flag.String("keyPath", "", "path to client private key")
 	certPath := flag.String("certPath", "", "path to client certificate")
-	e2tEndpoint := flag.String("e2tEndpoint", e2tEndpoint, "E2T service endpoint")
-	xappPciEndpoint := flag.String("xappPciEndpoint", xappPciEndpoint, "XApp PCI service endpoint")
-	xappKpimonEndpoint := flag.String("xappKpimonEndpoint", xappKpimonEndpoint, "XApp Kpimon service endpoint")
+	e2tEndpoint := flag.String("e2tEndpoint", e2tEndpointDefault, "E2T service endpoint")
+	xappPciEndpoint := flag.String("xappPciEndpoint", xappPciEndpointDefault, "XApp PCI service endpoint")
+	xappKpimonEndpoint := flag.String("xappKpimonEndpoint", xappKpimonEndpointDefault, "XApp Kpimon service endpoint")
+	topoEndpoint := flag.String("topoEndpoint", topoEndpointDefault, "Onos topo service endpoint")
 
 	flag.Parse()
 
 	log.Info("Starting onos-exporter")
 
 	cfgs := map[string]export.CollectorConfig{
-		export.ONOSE2T: {
+		config.ONOSE2T: {
 			ServiceAddress: *e2tEndpoint,
 		},
-		export.ONOSXAPPPCI: {
+		config.ONOSXAPPPCI: {
 			ServiceAddress: *xappPciEndpoint,
 		},
-		export.ONOSXAPPKPIMON: {
+		config.ONOSXAPPKPIMON: {
 			ServiceAddress: *xappKpimonEndpoint,
+		},
+		config.ONOSTOPO: {
+			ServiceAddress: *topoEndpoint,
 		},
 	}
 

@@ -8,15 +8,9 @@ import (
 	"fmt"
 	"sync"
 
+	exporterConfig "github.com/onosproject/onos-exporter/pkg/config"
 	"github.com/onosproject/onos-exporter/pkg/kpis"
 	"github.com/onosproject/onos-lib-go/pkg/logging"
-)
-
-// List of available collectors implemented.
-const (
-	ONOSE2T        = "onos-e2t"
-	ONOSXAPPKPIMON = "onos-xappkpimon"
-	ONOSXAPPPCI    = "onos-xapppci"
 )
 
 var log = logging.GetLogger("collect")
@@ -49,22 +43,29 @@ func CreateCollector(name, serviceAddress string) (Collector, error) {
 	}
 
 	switch name {
-	case ONOSE2T:
+	case exporterConfig.ONOSE2T:
 		return &onose2tCollector{
 			collector: collector{
 				name:   name,
 				config: colConfig,
 			},
 		}, nil
-	case ONOSXAPPKPIMON:
+	case exporterConfig.ONOSXAPPKPIMON:
 		return &xappKpimonCollector{
 			collector: collector{
 				name:   name,
 				config: colConfig,
 			},
 		}, nil
-	case ONOSXAPPPCI:
+	case exporterConfig.ONOSXAPPPCI:
 		return &xappPciCollector{
+			collector: collector{
+				name:   name,
+				config: colConfig,
+			},
+		}, nil
+	case exporterConfig.ONOSTOPO:
+		return &onosTopoCollector{
 			collector: collector{
 				name:   name,
 				config: colConfig,

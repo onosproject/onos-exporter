@@ -25,6 +25,12 @@ const (
 
 	xappkpimonKPIName     = "kpm"
 	xappkpimonDescription = "The KPM related metrics"
+
+	topoEntitiesKPIName        = "entities"
+	topoEntitiesKPIDescription = "The onos topo entities"
+
+	topoRelationsKPIName        = "relations"
+	topoRelationsKPIDescription = "The onos topo relations"
 )
 
 // OnosE2tConnections defines the factory implementation of a kpi
@@ -51,5 +57,23 @@ func XappPciNumConflicts() *xappPciNumConflicts {
 	return &xappPciNumConflicts{
 		name:        xappPciNumConflictsKPIName,
 		description: xappPciNumConflictsDescription,
+	}
+}
+
+// OnosTopoEntities defines the factory implementation of a kpi
+// topoEntities having a well defined name and description.
+func OnosTopoEntities() *topoEntities {
+	return &topoEntities{
+		name:        topoEntitiesKPIName,
+		description: topoEntitiesKPIDescription,
+	}
+}
+
+// OnosTopoRelations defines the factory implementation of a kpi
+// topoRelations having a well defined name and description.
+func OnosTopoRelations() *topoRelations {
+	return &topoRelations{
+		name:        topoRelationsKPIName,
+		description: topoRelationsKPIDescription,
 	}
 }
