@@ -14,14 +14,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-// onosTopo is the onos xapp pci collector.
-// It extracts all the pci related kpis using the Collect method.
+// onosTopoCollector is the onos topo collector.
+// It extracts all the topo related kpis using the Collect method.
 type onosTopoCollector struct {
 	collector
 }
 
 // Collect implements the Collector interface behavior for
-// XappPciCollector, returning a list of kpis.KPI.
+// onosTopoCollector, returning a list of kpis.KPI.
 func (col *onosTopoCollector) Collect() ([]kpis.KPI, error) {
 	kpis := []kpis.KPI{}
 
@@ -98,7 +98,7 @@ func parseObjectEntity(obj topoapi.Object) kpis.TopoEntity {
 
 // listRelations receives a connection to a onos topo service
 // to retrieve the topo Relations and store them according to the
-// data structure of the kpis.OnosTopoEntities KPI.
+// data structure of the kpis.OnosTopoRelations KPI.
 func listRelations(conn *grpc.ClientConn) (kpis.KPI, error) {
 	relationsKPI := kpis.OnosTopoRelations()
 	relationsKPI.Relations = make(map[string]kpis.TopoRelation)

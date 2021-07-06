@@ -21,6 +21,7 @@ var (
 		config.ONOSXAPPKPIMON,
 		config.ONOSXAPPPCI,
 		config.ONOSTOPO,
+		config.ONOSUENIB,
 	}
 )
 

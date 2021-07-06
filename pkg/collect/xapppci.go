@@ -5,6 +5,7 @@
 package collect
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -72,15 +73,31 @@ func listNumConflictsAll(conn *grpc.ClientConn) (kpis.KPI, error) {
 
 		cellDlearfcn := float64(cell.Dlearfcn)
 
+		neighbors := neighborsAsCSV(cell)
+
 		cInfo := kpis.CellInfo{
-			CellID:       cellID,
-			NodeID:       nodeID,
-			CellType:     cellType,
-			CellPci:      cellPci,
-			CellDlearfcn: cellDlearfcn,
+			CellID:        cellID,
+			NodeID:        nodeID,
+			CellType:      cellType,
+			CellPci:       cellPci,
+			CellDlearfcn:  cellDlearfcn,
+			CellNeighbors: neighbors,
 		}
 		numConflictsKPI.Cells[cellID] = cInfo
 	}
 
 	return numConflictsKPI, nil
+}
+
+func neighborsAsCSV(cell *pciapi.PciCell) string {
+	var buffer bytes.Buffer
+	first := true
+	for _, neighbor := range cell.NeighborIds {
+		if !first {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString(fmt.Sprintf("%x", neighbor))
+		first = false
+	}
+	return buffer.String()
 }

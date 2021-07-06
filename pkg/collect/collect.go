@@ -71,6 +71,13 @@ func CreateCollector(name, serviceAddress string) (Collector, error) {
 				config: colConfig,
 			},
 		}, nil
+	case exporterConfig.ONOSUENIB:
+		return &onosUenibCollector{
+			collector: collector{
+				name:   name,
+				config: colConfig,
+			},
+		}, nil
 	default:
 		return &collector{}, fmt.Errorf("no collector found with name %s", name)
 

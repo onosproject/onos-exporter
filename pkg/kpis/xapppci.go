@@ -17,11 +17,12 @@ var (
 )
 
 type CellInfo struct {
-	CellID       string
-	NodeID       string
-	CellType     string
-	CellPci      string
-	CellDlearfcn float64
+	CellID        string
+	NodeID        string
+	CellType      string
+	CellPci       string
+	CellDlearfcn  float64
+	CellNeighbors string
 }
 
 // xapppciNumConflicts defines the common data that can be used
@@ -40,7 +41,7 @@ type xappPciNumConflicts struct {
 func (c *xappPciNumConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
-	c.Labels = []string{"cellid", "celltype", "nodeid", "cellpci"}
+	c.Labels = []string{"cellid", "celltype", "e2id", "pci", "neighbors"}
 	metricDesc := xappPciBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsXappPci)
 
 	for _, cell := range c.Cells {
@@ -52,6 +53,7 @@ func (c *xappPciNumConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
 			cell.CellType,
 			cell.NodeID,
 			cell.CellPci,
+			cell.CellNeighbors,
 		)
 		metrics = append(metrics, metric)
 	}

@@ -31,6 +31,9 @@ const (
 
 	topoRelationsKPIName        = "relations"
 	topoRelationsKPIDescription = "The onos topo relations"
+
+	OnosUenibUEsKPIName        = "aspects"
+	OnosUenibUEsKPIDescription = "The uenib aspects "
 )
 
 // OnosE2tConnections defines the factory implementation of a kpi
@@ -75,5 +78,14 @@ func OnosTopoRelations() *topoRelations {
 	return &topoRelations{
 		name:        topoRelationsKPIName,
 		description: topoRelationsKPIDescription,
+	}
+}
+
+// OnosUenibUEs defines the factory implementation of a kpi
+// onosUenibUEs having a well defined name and description.
+func OnosUenibUEs() *onosUenibUEs {
+	return &onosUenibUEs{
+		name:        OnosUenibUEsKPIName,
+		description: OnosUenibUEsKPIDescription,
 	}
 }

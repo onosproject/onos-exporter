@@ -23,6 +23,7 @@ const (
 	xappPciEndpointDefault    = "onos-pci:5150"
 	xappKpimonEndpointDefault = "onos-kpimon:5150"
 	topoEndpointDefault       = "onos-topo:5150"
+	uenibEndpointDefault      = "onos-uenib:5150"
 )
 
 var log = logging.GetLogger("main")
@@ -52,6 +53,7 @@ func main() {
 	xappPciEndpoint := flag.String("xappPciEndpoint", xappPciEndpointDefault, "XApp PCI service endpoint")
 	xappKpimonEndpoint := flag.String("xappKpimonEndpoint", xappKpimonEndpointDefault, "XApp Kpimon service endpoint")
 	topoEndpoint := flag.String("topoEndpoint", topoEndpointDefault, "Onos topo service endpoint")
+	uenibEndpoint := flag.String("uenibEndpoint", uenibEndpointDefault, "Onos uenib service endpoint")
 
 	flag.Parse()
 
@@ -69,6 +71,9 @@ func main() {
 		},
 		config.ONOSTOPO: {
 			ServiceAddress: *topoEndpoint,
+		},
+		config.ONOSUENIB: {
+			ServiceAddress: *uenibEndpoint,
 		},
 	}
 

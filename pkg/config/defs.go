@@ -12,4 +12,5 @@ const (
 	ONOSXAPPKPIMON = "onos-xappkpimon"
 	ONOSXAPPPCI    = "onos-xapppci"
 	ONOSTOPO       = "onos-topo"
+	ONOSUENIB      = "onos-uenib"
 )

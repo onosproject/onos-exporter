@@ -13,7 +13,7 @@ import (
 // builder is used to create metrics in the PrometheusFormat.
 var (
 	staticLabelsOnosTopo = map[string]string{"sdran": "topo"}
-	xappTopoBuilder      = prom.NewBuilder("onos", "topo", staticLabelsOnosTopo)
+	onosTopoBuilder      = prom.NewBuilder("onos", "topo", staticLabelsOnosTopo)
 )
 
 type TopoRelation struct {
@@ -54,10 +54,10 @@ func (t *topoRelations) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
 	t.Labels = []string{"relationid", "kind", "source", "target", "labels", "aspects"}
-	metricDesc := xappTopoBuilder.NewMetricDesc(t.name, t.description, t.Labels, staticLabelsOnosTopo)
+	metricDesc := onosTopoBuilder.NewMetricDesc(t.name, t.description, t.Labels, staticLabelsOnosTopo)
 
 	for _, relation := range t.Relations {
-		metric := xappTopoBuilder.MustNewConstMetric(
+		metric := onosTopoBuilder.MustNewConstMetric(
 			metricDesc,
 			prometheus.GaugeValue,
 			1.0,
@@ -80,10 +80,10 @@ func (t *topoEntities) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
 	t.Labels = []string{"entityid", "kind", "labels", "aspects"}
-	metricDesc := xappTopoBuilder.NewMetricDesc(t.name, t.description, t.Labels, staticLabelsOnosTopo)
+	metricDesc := onosTopoBuilder.NewMetricDesc(t.name, t.description, t.Labels, staticLabelsOnosTopo)
 
 	for _, relation := range t.Entities {
-		metric := xappTopoBuilder.MustNewConstMetric(
+		metric := onosTopoBuilder.MustNewConstMetric(
 			metricDesc,
 			prometheus.GaugeValue,
 			1.0,
