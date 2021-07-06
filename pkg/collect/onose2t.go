@@ -83,6 +83,7 @@ func onose2tListConnections(conn *grpc.ClientConn) (kpis.KPI, error) {
 		OnosE2tConnectionsKPI.NumberConnections[response.Id] = kpis.E2tConnection{
 			Id:             response.Id,
 			PlmnId:         response.PlmnId,
+			NodeId:         response.NodeId,
 			RemoteIp:       strings.Join(response.RemoteIp, ","),
 			RemotePort:     fmt.Sprintf("%v", response.RemotePort),
 			ConnectionType: response.ConnectionType.String(),

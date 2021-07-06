@@ -18,6 +18,7 @@ var (
 
 type E2tConnection struct {
 	Id             string
+	NodeId         string
 	PlmnId         string
 	RemoteIp       string
 	RemotePort     string
@@ -41,7 +42,7 @@ type onosE2tConnections struct {
 func (c *onosE2tConnections) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
-	c.Labels = []string{"id", "plmnid", "remote_ip", "remote_port", "connection_type"}
+	c.Labels = []string{"id", "e2id", "plmnid", "remote_ip", "remote_port", "connection_type"}
 	metricDesc := onose2tBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsE2t)
 
 	for _, e2tCon := range c.NumberConnections {
@@ -50,6 +51,7 @@ func (c *onosE2tConnections) PrometheusFormat() ([]prometheus.Metric, error) {
 			prometheus.GaugeValue,
 			1,
 			e2tCon.Id,
+			e2tCon.NodeId,
 			e2tCon.PlmnId,
 			e2tCon.RemoteIp,
 			e2tCon.RemotePort,
