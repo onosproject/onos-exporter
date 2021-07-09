@@ -40,20 +40,26 @@ func (col *xappPciCollector) Collect() ([]kpis.KPI, error) {
 	}
 	defer conn.Close()
 
-	numConflictsKPI, err := listNumConflictsAll(conn)
+	cellInfoKPI, err := listCellInfo(conn)
 	if err != nil {
 		return kpis, err
 	}
 
-	kpis = append(kpis, numConflictsKPI)
+	conflictsKPI, err := listResolvedConflictsAll(conn)
+	if err != nil {
+		return kpis, err
+	}
+
+	kpis = append(kpis, cellInfoKPI)
+	kpis = append(kpis, conflictsKPI)
 
 	return kpis, err
 }
 
-// listNumConflictsAll receives a connection to a pci xapp service
+// listCellInfo receives a connection to a pci xapp service
 // to retrieve the pci conflicts and store them according to the
 // data structure of the kpis.XappPciNumConflicts KPI.
-func listNumConflictsAll(conn *grpc.ClientConn) (kpis.KPI, error) {
+func listCellInfo(conn *grpc.ClientConn) (kpis.KPI, error) {
 	numConflictsKPI := kpis.XappPciNumConflicts()
 	numConflictsKPI.Cells = make(map[string]kpis.CellInfo)
 
@@ -100,4 +106,33 @@ func neighborsAsCSV(cell *pciapi.PciCell) string {
 		first = false
 	}
 	return buffer.String()
+}
+
+// listNumConflictsAll receives a connection to a pci xapp service
+// to retrieve the pci conflicts and store them according to the
+// data structure of the kpis.XappPciNumConflicts KPI.
+func listResolvedConflictsAll(conn *grpc.ClientConn) (kpis.KPI, error) {
+	resolvedConflictsKPI := kpis.XappPciResolvedConflicts()
+	resolvedConflictsKPI.Cells = make(map[string]kpis.CellConflict)
+
+	request := pciapi.GetResolvedConflictsRequest{}
+	client := pciapi.NewPciClient(conn)
+	response, err := client.GetResolvedConflicts(context.Background(), &request)
+	if err != nil {
+		return resolvedConflictsKPI, err
+	}
+
+	for _, cell := range response.GetCells() {
+		cellID := fmt.Sprintf("%x", cell.Id)
+
+		cInfo := kpis.CellConflict{
+			CellID:            cellID,
+			OriginalPci:       fmt.Sprintf("%d", cell.OriginalPci),
+			ResolvedPci:       fmt.Sprintf("%d", cell.ResolvedPci),
+			ResolvedConflicts: float64(cell.ResolvedConflicts),
+		}
+		resolvedConflictsKPI.Cells[cellID] = cInfo
+	}
+
+	return resolvedConflictsKPI, nil
 }

@@ -16,6 +16,13 @@ var (
 	xappPciBuilder      = prom.NewBuilder("onos", "xapppci", staticLabelsXappPci)
 )
 
+type CellConflict struct {
+	CellID            string
+	ResolvedConflicts float64
+	OriginalPci       string
+	ResolvedPci       string
+}
+
 type CellInfo struct {
 	CellID        string
 	NodeID        string
@@ -27,13 +34,24 @@ type CellInfo struct {
 
 // xapppciNumConflicts defines the common data that can be used
 // to output the format of a KPI (e.g., PrometheusFormat).
-// NumberConflicts stores the number of conflicts per cell id.
+// CellInfo stores the cell info.
 type xappPciNumConflicts struct {
 	name        string
 	description string
 	Labels      []string
 	LabelValues []string
 	Cells       map[string]CellInfo
+}
+
+// xappPciResolvedConflicts defines the common data that can be used
+// to output the format of a KPI (e.g., PrometheusFormat).
+// CellConflict stores the number of conflicts per cell id.
+type xappPciResolvedConflicts struct {
+	name        string
+	description string
+	Labels      []string
+	LabelValues []string
+	Cells       map[string]CellConflict
 }
 
 // PrometheusFormat implements the contract behavior of the kpis.KPI
@@ -54,6 +72,29 @@ func (c *xappPciNumConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
 			cell.NodeID,
 			cell.CellPci,
 			cell.CellNeighbors,
+		)
+		metrics = append(metrics, metric)
+	}
+
+	return metrics, nil
+}
+
+// PrometheusFormat implements the contract behavior of the kpis.KPI
+// interface for xappPciResolvedConflicts.
+func (c *xappPciResolvedConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
+	metrics := []prometheus.Metric{}
+
+	c.Labels = []string{"cellid", "original_pci", "resolved_pci"}
+	metricDesc := xappPciBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsXappPci)
+
+	for _, cell := range c.Cells {
+		metric := xappPciBuilder.MustNewConstMetric(
+			metricDesc,
+			prometheus.GaugeValue,
+			cell.ResolvedConflicts,
+			cell.CellID,
+			cell.OriginalPci,
+			cell.ResolvedPci,
 		)
 		metrics = append(metrics, metric)
 	}

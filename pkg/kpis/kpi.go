@@ -20,8 +20,11 @@ const (
 	onosE2tConnectionsKPIName        = "connections"
 	onosE2tConnectionsKPIDescription = "The number of e2t connections"
 
-	xappPciNumConflictsKPIName     = "conflicts"
-	xappPciNumConflictsDescription = "The number of xapp pci conflicts per cell"
+	xappPciNumConflictsKPIName     = "info"
+	xappPciNumConflictsDescription = "The xapp pci cell info"
+
+	xappPciResolvedConflictsKPIName     = "conflicts"
+	xappPciResolvedConflictsDescription = "The xapp pci resolved cell conflicts"
 
 	xappkpimonKPIName     = "kpm"
 	xappkpimonDescription = "The KPM related metrics"
@@ -60,6 +63,15 @@ func XappPciNumConflicts() *xappPciNumConflicts {
 	return &xappPciNumConflicts{
 		name:        xappPciNumConflictsKPIName,
 		description: xappPciNumConflictsDescription,
+	}
+}
+
+// XappPciResolvedConflicts defines the factory implementation of a kpi
+// xappPciResolvedConflicts having a well defined name and description.
+func XappPciResolvedConflicts() *xappPciResolvedConflicts {
+	return &xappPciResolvedConflicts{
+		name:        xappPciResolvedConflictsKPIName,
+		description: xappPciResolvedConflictsDescription,
 	}
 }
 
