@@ -7,7 +7,6 @@ package collect
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	prototypes "github.com/gogo/protobuf/types"
@@ -77,13 +76,14 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 				measValue := measRecord.MeasurementValue
 
 				ids := strings.Split(key, ":")
-				tmpE2ID := ids[0]
-				// tmpCellID := ids[1]
+				NodeID := ids[0]
+				CellID := ids[1]
+				CellGlobalID := ids[2]
 
-				tmpCellID, err := strconv.Atoi(ids[1])
-				if err != nil {
-					return xappKpiMonKPI, err
-				}
+				// tmpCellID, err := strconv.Atoi(ids[1])
+				// if err != nil {
+				// 	return xappKpiMonKPI, err
+				// }
 
 				var value interface{}
 
@@ -116,10 +116,12 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 
 				uKey := fmt.Sprintf("%s:%s", key, measName)
 				xappKpiMonKPI.Data[uKey] = kpis.KpimonData{
-					CellID:     fmt.Sprintf("%x", tmpCellID),
-					E2ID:       tmpE2ID,
-					MetricType: measName,
-					Value:      fmt.Sprintf("%v", value),
+					// CellID:     fmt.Sprintf("%x", tmpCellID),
+					CellID:       CellID,
+					NodeID:       NodeID,
+					CellGlobalID: CellGlobalID,
+					MetricType:   measName,
+					Value:        fmt.Sprintf("%v", value),
 				}
 			}
 		}

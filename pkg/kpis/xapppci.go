@@ -59,7 +59,7 @@ type xappPciResolvedConflicts struct {
 func (c *xappPciNumConflicts) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
-	c.Labels = []string{"cellid", "celltype", "e2id", "pci", "neighbors"}
+	c.Labels = []string{"cellid", "celltype", "nodeid", "pci", "neighbors"}
 	metricDesc := xappPciBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsXappPci)
 
 	for _, cell := range c.Cells {
