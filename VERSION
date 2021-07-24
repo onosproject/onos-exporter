@@ -1,1 +1,13 @@
+<<<<<<< HEAD
 0.1.8-dev
+||||||| constructed merge base
+<<<<<<< HEAD
+0.1.7-dev
+||||||| constructed merge base
+0.1.6-dev
+=======
+0.1.6
+>>>>>>> Bumps to v0.1.6
+=======
+0.1.7
+>>>>>>> Updates kpimon labels and releases version 0.1.7
