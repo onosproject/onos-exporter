@@ -24,7 +24,6 @@ const (
 	xappKpimonEndpointDefault = "onos-kpimon:5150"
 	topoEndpointDefault       = "onos-topo:5150"
 	uenibEndpointDefault      = "onos-uenib:5150"
-	profileTargetsDefault     = ""
 )
 
 var log = logging.GetLogger("main")

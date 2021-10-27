@@ -40,9 +40,6 @@ const (
 
 	OnosUenibUEsKPIName        = "ues"
 	OnosUenibUEsKPIDescription = "The uenib ues"
-
-	onosProfileHeapKPIName        = "heap"
-	onosProfileHeapKPIDescription = "The onos heap profile"
 )
 
 // OnosE2tSubscriptions defines the factory implementation of a kpi
