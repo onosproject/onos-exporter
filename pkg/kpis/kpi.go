@@ -116,10 +116,3 @@ func OnosUenibUEs() *onosUenibUEs {
 		description: OnosUenibUEsKPIDescription,
 	}
 }
-
-func OnosProfileHeap() *onosProfileHeap {
-	return &onosProfileHeap{
-		name:        onosProfileHeapKPIName,
-		description: onosProfileHeapKPIDescription,
-	}
-}
