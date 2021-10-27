@@ -55,7 +55,8 @@ onos-exporter-docker:
 	@go mod vendor
 	docker build . -f build/onos-exporter/Dockerfile \
 		-t onosproject/onos-exporter:${ONOS_EXPORTER_VERSION}
-
+	@rm -rf vendor
+	
 images: # @HELP build all Docker images
 images: build onos-exporter-docker
 
