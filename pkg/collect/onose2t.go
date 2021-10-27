@@ -7,10 +7,8 @@ package collect
 import (
 	"context"
 	"fmt"
-	"io"
-	"strings"
 
-	adminapi "github.com/onosproject/onos-api/go/onos/e2t/admin"
+	subapi "github.com/onosproject/onos-api/go/onos/e2t/e2/v1beta1"
 	"github.com/onosproject/onos-exporter/pkg/kpis"
 	"google.golang.org/grpc"
 )
@@ -45,50 +43,51 @@ func (col *onose2tCollector) Collect() ([]kpis.KPI, error) {
 	}
 	defer conn.Close()
 
-	e2tconnectionsKPI, err := onose2tListConnections(conn)
+	e2tsubscriptionKPI, err := onose2tListSubscriptions(conn)
 	if err != nil {
 		return kpis, err
 	}
 
-	kpis = append(kpis, e2tconnectionsKPI)
+	kpis = append(kpis, e2tsubscriptionKPI)
 
 	return kpis, nil
 }
 
-// onose2tListConnections implements the extraction of the kpi OnosE2tConnections
-// from the component onose2t. It connects to onos e2t service list the e2NodeConnections
-// and fill the proper fields of the OnosE2tConnectionsKPI.
+// onose2tListSubscriptions implements the extraction of the kpi OnosE2tSubscriptions
+// from the component onose2t. It connects to onos e2t service list the e2NodeSubs
+// and fill the proper fields of the OnosE2tSubscriptionsKPI.
 // Other functions must be implemented similar to this one in order to extract other
 // kpis from onos e2t service.
-func onose2tListConnections(conn *grpc.ClientConn) (kpis.KPI, error) {
-	OnosE2tConnectionsKPI := kpis.OnosE2tConnections()
-	OnosE2tConnectionsKPI.NumberConnections = make(map[string]kpis.E2tConnection)
+func onose2tListSubscriptions(conn *grpc.ClientConn) (kpis.KPI, error) {
+	OnosE2tSubsKPI := kpis.OnosE2tSubscriptions()
+	OnosE2tSubsKPI.Subs = make(map[string]kpis.E2tSubscription)
 
-	request := adminapi.ListE2NodeConnectionsRequest{}
-	client := adminapi.NewE2TAdminServiceClient(conn)
-	stream, err := client.ListE2NodeConnections(context.Background(), &request)
+	client := subapi.NewSubscriptionAdminServiceClient(conn)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	response, err := client.ListSubscriptions(ctx, &subapi.ListSubscriptionsRequest{})
+	if err != nil {
+		return OnosE2tSubsKPI, err
+	}
 
 	if err != nil {
-		return OnosE2tConnectionsKPI, err
+		return OnosE2tSubsKPI, err
 	}
 
-	for {
-		response, err := stream.Recv()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return OnosE2tConnectionsKPI, err
-		}
+	for _, sub := range response.Subscriptions {
 
-		OnosE2tConnectionsKPI.NumberConnections[response.Id] = kpis.E2tConnection{
-			Id:             response.Id,
-			PlmnId:         response.PlmnId,
-			NodeId:         response.NodeId,
-			RemoteIp:       strings.Join(response.RemoteIp, ","),
-			RemotePort:     fmt.Sprintf("%v", response.RemotePort),
-			ConnectionType: response.ConnectionType.String(),
+		OnosE2tSubsKPI.Subs[string(sub.ID)] = kpis.E2tSubscription{
+			Id:                  string(sub.ID),
+			Revision:            string(rune(sub.Revision)),
+			ServiceModelName:    string(sub.SubscriptionMeta.ServiceModel.Name),
+			ServiceModelVersion: string(sub.SubscriptionMeta.ServiceModel.Version),
+			E2NodeID:            string(sub.SubscriptionMeta.E2NodeID),
+			Encoding:            sub.SubscriptionMeta.Encoding.String(),
+			StatusPhase:         sub.Status.Phase.String(),
+			StatusState:         sub.Status.State.String(),
 		}
 	}
 
-	return OnosE2tConnectionsKPI, nil
+	return OnosE2tSubsKPI, nil
 }

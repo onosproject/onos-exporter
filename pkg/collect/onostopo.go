@@ -8,7 +8,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/gogo/protobuf/jsonpb"
 	topoapi "github.com/onosproject/onos-api/go/onos/topo"
 	"github.com/onosproject/onos-exporter/pkg/kpis"
 	"google.golang.org/grpc"
@@ -40,43 +42,71 @@ func (col *onosTopoCollector) Collect() ([]kpis.KPI, error) {
 	}
 	defer conn.Close()
 
-	entitiesKPI, err := listEntities(conn)
+	topoEntityObjs, err := getTopoObjects(conn, topoapi.Object_ENTITY)
 	if err != nil {
 		return kpis, err
 	}
+
+	entitiesKPI := listEntities(topoEntityObjs)
+	slicesKPI := listSlices(topoEntityObjs)
+
+	kpis = append(kpis, entitiesKPI)
+	kpis = append(kpis, slicesKPI)
 
 	relationsKPI, err := listRelations(conn)
 	if err != nil {
 		return kpis, err
 	}
 
-	kpis = append(kpis, entitiesKPI)
 	kpis = append(kpis, relationsKPI)
 
 	return kpis, err
 }
 
-// listEntities receives a connection to a onos topo service
-// to retrieve the topo Entities and store them according to the
-// data structure of the kpis.OnosTopoEntities KPI.
-func listEntities(conn *grpc.ClientConn) (kpis.KPI, error) {
+// getTopoObjects gets topo objects based on type, which
+// can be topoapi.Object_ENTITY or topoapi.Object_RELATION.
+func getTopoObjects(conn *grpc.ClientConn, objType topoapi.Object_Type) ([]topoapi.Object, error) {
 	entitiesKPI := kpis.OnosTopoEntities()
 	entitiesKPI.Entities = make(map[string]kpis.TopoEntity)
 
 	filters := &topoapi.Filters{}
-	filters.ObjectTypes = []topoapi.Object_Type{topoapi.Object_ENTITY}
+	filters.ObjectTypes = []topoapi.Object_Type{objType}
 	objects, err := listObjects(conn, filters)
 
-	if err != nil {
-		return entitiesKPI, err
-	}
+	return objects, err
+}
+
+// listEntities receives a list of topo Objects and store them according to the
+// data structure of the kpis.OnosTopoEntities KPI.
+func listEntities(objects []topoapi.Object) kpis.KPI {
+	entitiesKPI := kpis.OnosTopoEntities()
+	entitiesKPI.Entities = make(map[string]kpis.TopoEntity)
 
 	for _, object := range objects {
 		entity := parseObjectEntity(object)
 		entitiesKPI.Entities[entity.ID] = entity
 	}
 
-	return entitiesKPI, nil
+	return entitiesKPI
+}
+
+// listSlices receives a list of topo Objects and store them according to the
+// data structure of the kpis.OnosTopoSlices KPI.
+func listSlices(objects []topoapi.Object) kpis.KPI {
+	slicesKPI := kpis.OnosTopoSlices()
+	slicesKPI.Slices = make(map[string]kpis.TopoEntitySlice)
+
+	for _, object := range objects {
+		entitySlices := parseSlicesEntity(object)
+
+		for _, entitySlice := range entitySlices {
+			sliceKey := fmt.Sprintf("%s-%s", entitySlice.NodeID, entitySlice.SliceID)
+			slicesKPI.Slices[sliceKey] = entitySlice
+		}
+
+	}
+
+	return slicesKPI
 }
 
 func parseObjectEntity(obj topoapi.Object) kpis.TopoEntity {
@@ -177,4 +207,65 @@ func aspectsAsCSV(object topoapi.Object, verbose bool) string {
 		}
 	}
 	return buffer.String()
+}
+
+func parseSliceUeIdList(UeIdList []*topoapi.UeIdentity) []string {
+	sliceUEs := []string{}
+
+	for _, UeIdentity := range UeIdList {
+		sliceUE := fmt.Sprintf(
+			"PreferredIDType=%s,AMFUeNgapID=%s,CuUeF1apID=%s,DuUeF1apID=%s,EnbUeS1apID=%s,RANUeNgapID=%s",
+			UeIdentity.PreferredIDType.String(), UeIdentity.AMFUeNgapID.String(), UeIdentity.CuUeF1apID.String(),
+			UeIdentity.DuUeF1apID.String(), UeIdentity.EnbUeS1apID.String(), UeIdentity.RANUeNgapID.String())
+		sliceUEs = append(sliceUEs, sliceUE)
+	}
+	return sliceUEs
+}
+
+func parseSlicesEntity(object topoapi.Object) []kpis.TopoEntitySlice {
+
+	var kindID topoapi.ID
+	if e := object.GetEntity(); e != nil {
+		kindID = e.KindID
+	}
+
+	NodeID := string(object.ID)
+	Kind := string(kindID)
+
+	entitySlices := []kpis.TopoEntitySlice{}
+
+	for aspectType, aspect := range object.Aspects {
+
+		if strings.Contains(aspectType, "RSMSliceItemList") {
+			topoSliceItemList := topoapi.RSMSliceItemList{}
+			jm := jsonpb.Unmarshaler{}
+			avb := bytes.NewBuffer(aspect.Value)
+			err := jm.Unmarshal(avb, &topoSliceItemList)
+			if err != nil {
+				log.Warn(err)
+			}
+
+			for _, topoSliceItem := range topoSliceItemList.RsmSliceList {
+				log.Info(topoSliceItem)
+
+				sliceUEs := parseSliceUeIdList(topoSliceItem.UeIdList)
+
+				sliceItem := kpis.TopoEntitySlice{
+					NodeID:        NodeID,
+					Kind:          Kind,
+					SliceID:       topoSliceItem.ID,
+					SliceDesc:     topoSliceItem.SliceDesc,
+					SchedulerType: topoSliceItem.SliceParameters.GetSchedulerType().String(),
+					Weight:        fmt.Sprintf("%d", topoSliceItem.SliceParameters.GetWeight()),
+					QosLevel:      fmt.Sprintf("%d", topoSliceItem.SliceParameters.GetQosLevel()),
+					SliceType:     topoSliceItem.SliceType.String(),
+					UeIdList:      strings.Join(sliceUEs, ","),
+				}
+
+				entitySlices = append(entitySlices, sliceItem)
+			}
+
+		}
+	}
+	return entitySlices
 }

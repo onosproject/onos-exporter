@@ -5,6 +5,7 @@
 package collect
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -59,7 +60,7 @@ func listUEs(conn *grpc.ClientConn) (kpis.KPI, error) {
 	uenibKPI := kpis.OnosUenibUEs()
 	uenibKPI.UEs = make(map[string]kpis.UE)
 
-	aspectTypes := []string{"neighbors", "RRC.Conn.Avg"}
+	aspectTypes := []string{}
 
 	client := uenib.CreateUEServiceClient(conn)
 
@@ -82,7 +83,7 @@ func listUEs(conn *grpc.ClientConn) (kpis.KPI, error) {
 		} else if err != nil {
 			return uenibKPI, err
 		} else {
-			ue := parseObjectUE(resp.UE)
+			ue := parseObjectUE(resp.UE, false)
 			uenibKPI.UEs[ue.ID] = ue
 
 		}
@@ -91,19 +92,23 @@ func listUEs(conn *grpc.ClientConn) (kpis.KPI, error) {
 	return uenibKPI, nil
 }
 
-func parseObjectUE(ue uenib.UE) kpis.UE {
-	aspects := []string{}
-	aspectsValues := []string{}
+func parseObjectUE(ue uenib.UE, verbose bool) kpis.UE {
+	aspectsList := []string{}
 
-	for aspectType, any := range ue.Aspects {
-		aspectType = strings.ToLower(strings.ReplaceAll(aspectType, ".", "_"))
-		aspects = append(aspects, aspectType)
-		aspectsValues = append(aspectsValues, string(any.Value))
+	for aspectType, aspect := range ue.Aspects {
+
+		if verbose {
+			aspectTypeValue := strings.Join([]string{aspectType, bytes.NewBuffer(aspect.Value).String()}, "=")
+			aspectsList = append(aspectsList, aspectTypeValue)
+		} else {
+			aspectsList = append(aspectsList, aspectType)
+		}
 	}
 
+	aspects := strings.Join(aspectsList, ",")
+
 	return kpis.UE{
-		ID:            string(ue.ID),
-		Aspects:       aspects,
-		AspectsValues: aspectsValues,
+		ID:      string(ue.ID),
+		Aspects: aspects,
 	}
 }

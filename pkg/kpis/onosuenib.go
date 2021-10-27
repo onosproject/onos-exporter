@@ -17,10 +17,9 @@ var (
 )
 
 type UE struct {
-	ID            string
-	Aspects       []string
-	AspectsValues []string
-	Relations     map[string]TopoRelation
+	ID        string
+	Aspects   string
+	Relations map[string]TopoRelation
 }
 
 type onosUenibUEs struct {
@@ -37,11 +36,8 @@ func (t *onosUenibUEs) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
 	for _, ue := range t.UEs {
-		t.Labels = []string{"ueid"}
-		t.Labels = append(t.Labels, ue.Aspects...)
-
-		t.LabelValues = []string{ue.ID}
-		t.LabelValues = append(t.LabelValues, ue.AspectsValues...)
+		t.Labels = []string{"ueid", "aspects"}
+		t.LabelValues = []string{ue.ID, ue.Aspects}
 
 		metricDesc := onosUenibBuilder.NewMetricDesc(t.name, t.description, t.Labels, staticLabelsOnosUenib)
 

@@ -7,29 +7,31 @@ The onos-exporter realizes the collection of KPIs from multiple ONOS SD-RAN comp
 
 ## Enable 
 
-To enable logging/monitoring in RiaB, in the sdran-in-a-box-values.yaml (available for the latest version) file remove the comments of the lines below:
+To enable logging in sdran components, in the sdran values.yaml file enable the following components:
 
 ```yaml
+import:
+...
   fluent-bit:
     enabled: true
   opendistro-es:
     enabled: true
-  prometheus-stack:
-    enabled: true
 ```
 
-Associated with the monitoring of sdran components is the onos-exporter, the exporter for ONOS SD-RAN (µONOS Architecture) to scrape, format, and export onos KPIs to TSDB databases (e.g., Prometheus). Currently the implementation supports Prometheus. In order to enable onos-exporter, as shown below, make sure the prometheus-stack is enabled too.
+Associated with the monitoring of sdran components is the onos-exporter component, the exporter for ONOS SD-RAN (µONOS Architecture) to scrape, format, and export onos KPIs to TSDB databases (e.g., Prometheus). Currently the implementation supports Prometheus. In order to enable onos-exporter, as shown below, make sure the prometheus-stack is enabled too.
 
 ```yaml
+import:
+...
   prometheus-stack:
     enabled: true
   onos-exporter:
     enabled: true
 ```
 
-Be sure to enable onos-kpimon and onos-pci to also look at their metrics in the Grafana dashboard.
+The onos-exporter component supports scraping of metrics from onos-topo, onos-e2t, onos-uenib, onos-kpimon and onos-pci.
 
-## Visualize Grafana
+## Visualize metrics and logs in Grafana
 
 After modified the values file, then run the make command to instantiate RiaB. After deployed, the services and pods related to logging and monitoring will be shown as:
 
@@ -57,7 +59,11 @@ Make a port-forward rule to the grafana service on port 3000.
 kubectl -n riab port-forward svc/sd-ran-grafana 3000:80
 ```
 
-Open a browser and access `localhost:3000`. The credentials to access grafana are: username: admin and password: prom-operator.
+Open a browser and access `localhost:3000`. The credentials to access grafana are: 
+```txt
+username: admin 
+password: prom-operator
+```
 
 To look at the grafana dashboard for the sdran component logs and KPIs, check in the left menu of grafana the option dashboards and select the submenu Manage (or just access in the browser the address http://localhost:3000/dashboards).
 
@@ -70,8 +76,7 @@ In the top menu, the dropdown menus allow the selection of the Namespace riab an
 Similarly, other dashboards can be found in the left menu of grafana, showing for instance each pod workload in the dashboad `Kubernetes / Compute Resources / Workload`.
 
 
-
-## Visualize onos-exporter
+## Visualize onos-exporter prometheus metrics
 
 To look at the onos-exporter metrics, it's possible to access the onos-exporter directly or visualize the metrics in grafana.
 

@@ -76,9 +76,7 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 				measValue := measRecord.MeasurementValue
 
 				ids := strings.Split(key, ":")
-				NodeID := ids[0]
-				CellID := ids[1]
-				CellGlobalID := ids[2]
+				E2ID, NodeID, CellID, CellGlobalID := ids[0], ids[1], ids[2], ids[3]
 
 				// tmpCellID, err := strconv.Atoi(ids[1])
 				// if err != nil {
@@ -118,6 +116,7 @@ func listKpmMetrics(conn *grpc.ClientConn) (kpis.KPI, error) {
 				xappKpiMonKPI.Data[uKey] = kpis.KpimonData{
 					// CellID:     fmt.Sprintf("%x", tmpCellID),
 					CellID:       CellID,
+					E2ID:         E2ID,
 					NodeID:       NodeID,
 					CellGlobalID: CellGlobalID,
 					MetricType:   measName,

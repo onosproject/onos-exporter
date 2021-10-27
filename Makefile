@@ -4,7 +4,6 @@ export GO111MODULE=on
 .PHONY: build
 
 ONOS_EXPORTER_VERSION := latest
-ONOS_BUILD_VERSION := v0.1.0
 
 build: # @HELP build the Go binaries and run all validations (default)
 build:
@@ -56,7 +55,8 @@ onos-exporter-docker:
 	@go mod vendor
 	docker build . -f build/onos-exporter/Dockerfile \
 		-t onosproject/onos-exporter:${ONOS_EXPORTER_VERSION}
-
+	@rm -rf vendor
+	
 images: # @HELP build all Docker images
 images: build onos-exporter-docker
 
