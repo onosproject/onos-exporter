@@ -17,8 +17,8 @@ type KPI interface {
 // Const definitions of kpis name and description.
 // Name and description are used to define a particular KPI.
 const (
-	onosE2tConnectionsKPIName        = "connections"
-	onosE2tConnectionsKPIDescription = "The number of e2t connections"
+	onosE2tConnectionsKPIName        = "subscriptions"
+	onosE2tConnectionsKPIDescription = "The e2t subscriptions"
 
 	xappPciNumConflictsKPIName     = "info"
 	xappPciNumConflictsDescription = "The xapp pci cell info"
@@ -35,14 +35,20 @@ const (
 	topoRelationsKPIName        = "relations"
 	topoRelationsKPIDescription = "The onos topo relations"
 
-	OnosUenibUEsKPIName        = "aspects"
-	OnosUenibUEsKPIDescription = "The uenib aspects "
+	topoSlicesKPIName        = "slices"
+	topoSlicesKPIDescription = "The onos topo slices"
+
+	OnosUenibUEsKPIName        = "ues"
+	OnosUenibUEsKPIDescription = "The uenib ues"
+
+	onosProfileHeapKPIName        = "heap"
+	onosProfileHeapKPIDescription = "The onos heap profile"
 )
 
-// OnosE2tConnections defines the factory implementation of a kpi
-// onosE2tConnections having a well defined name and description.
-func OnosE2tConnections() *onosE2tConnections {
-	return &onosE2tConnections{
+// OnosE2tSubscriptions defines the factory implementation of a kpi
+// onosE2tSubscriptions having a well defined name and description.
+func OnosE2tSubscriptions() *onosE2tSubscriptions {
+	return &onosE2tSubscriptions{
 		name:        onosE2tConnectionsKPIName,
 		description: onosE2tConnectionsKPIDescription,
 	}
@@ -93,11 +99,27 @@ func OnosTopoRelations() *topoRelations {
 	}
 }
 
+// OnosTopoSlices defines the factory implementation of a kpi
+// topoSlices having a well defined name and description.
+func OnosTopoSlices() *topoSlices {
+	return &topoSlices{
+		name:        topoSlicesKPIName,
+		description: topoSlicesKPIDescription,
+	}
+}
+
 // OnosUenibUEs defines the factory implementation of a kpi
 // onosUenibUEs having a well defined name and description.
 func OnosUenibUEs() *onosUenibUEs {
 	return &onosUenibUEs{
 		name:        OnosUenibUEsKPIName,
 		description: OnosUenibUEsKPIDescription,
+	}
+}
+
+func OnosProfileHeap() *onosProfileHeap {
+	return &onosProfileHeap{
+		name:        onosProfileHeapKPIName,
+		description: onosProfileHeapKPIDescription,
 	}
 }

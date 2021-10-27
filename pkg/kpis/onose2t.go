@@ -16,46 +16,50 @@ var (
 	onose2tBuilder  = prom.NewBuilder("onos", "e2t", staticLabelsE2t)
 )
 
-type E2tConnection struct {
-	Id             string
-	NodeId         string
-	PlmnId         string
-	RemoteIp       string
-	RemotePort     string
-	ConnectionType string
+type E2tSubscription struct {
+	Id                  string
+	Revision            string
+	ServiceModelName    string
+	ServiceModelVersion string
+	E2NodeID            string
+	Encoding            string
+	StatusPhase         string
+	StatusState         string
 }
 
-// onosE2tConnections defines the common data that can be used
+// onosE2tSubscriptions defines the common data that can be used
 // to output the format of a KPI (e.g., PrometheusFormat).
-// NumberConnections stores each data structure for a connection
-// which contains the annotations as defined by E2tConnection struct.
-type onosE2tConnections struct {
-	name              string
-	description       string
-	Labels            []string
-	LabelValues       []string
-	NumberConnections map[string]E2tConnection
+// Subs stores each data structure for a subsctiption
+// which contains the annotations as defined by E2tSubscription struct.
+type onosE2tSubscriptions struct {
+	name        string
+	description string
+	Labels      []string
+	LabelValues []string
+	Subs        map[string]E2tSubscription
 }
 
 // PrometheusFormat implements the contract behavior of the kpis.KPI
-// interface for onosE2tConnections.
-func (c *onosE2tConnections) PrometheusFormat() ([]prometheus.Metric, error) {
+// interface for onosE2tSubscriptions.
+func (c *onosE2tSubscriptions) PrometheusFormat() ([]prometheus.Metric, error) {
 	metrics := []prometheus.Metric{}
 
-	c.Labels = []string{"id", "nodeid", "plmnid", "remote_ip", "remote_port", "connection_type"}
+	c.Labels = []string{"id", "revision", "service_model_name", "service_model_version", "node_id", "encoding", "status_phase", "status_state"}
 	metricDesc := onose2tBuilder.NewMetricDesc(c.name, c.description, c.Labels, staticLabelsE2t)
 
-	for _, e2tCon := range c.NumberConnections {
+	for _, e2tSub := range c.Subs {
 		metric := onose2tBuilder.MustNewConstMetric(
 			metricDesc,
 			prometheus.GaugeValue,
 			1,
-			e2tCon.Id,
-			e2tCon.NodeId,
-			e2tCon.PlmnId,
-			e2tCon.RemoteIp,
-			e2tCon.RemotePort,
-			e2tCon.ConnectionType,
+			e2tSub.Id,
+			e2tSub.Revision,
+			e2tSub.ServiceModelName,
+			e2tSub.ServiceModelVersion,
+			e2tSub.E2NodeID,
+			e2tSub.Encoding,
+			e2tSub.StatusPhase,
+			e2tSub.StatusState,
 		)
 		metrics = append(metrics, metric)
 	}

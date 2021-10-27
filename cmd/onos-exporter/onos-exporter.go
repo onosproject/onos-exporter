@@ -24,6 +24,7 @@ const (
 	xappKpimonEndpointDefault = "onos-kpimon:5150"
 	topoEndpointDefault       = "onos-topo:5150"
 	uenibEndpointDefault      = "onos-uenib:5150"
+	profileTargetsDefault     = ""
 )
 
 var log = logging.GetLogger("main")
@@ -54,6 +55,7 @@ func main() {
 	xappKpimonEndpoint := flag.String("xappKpimonEndpoint", xappKpimonEndpointDefault, "XApp Kpimon service endpoint")
 	topoEndpoint := flag.String("topoEndpoint", topoEndpointDefault, "Onos topo service endpoint")
 	uenibEndpoint := flag.String("uenibEndpoint", uenibEndpointDefault, "Onos uenib service endpoint")
+	// profileTargets := flag.String("profileTargets", profileTargetsDefault, "Set of sd-ran components (separated by comma) to extract pprof profiles.")
 
 	flag.Parse()
 
@@ -75,6 +77,9 @@ func main() {
 		config.ONOSUENIB: {
 			ServiceAddress: *uenibEndpoint,
 		},
+		// config.ONOSPROFILE: {
+		// 	ServiceAddress: *profileTargets,
+		// },
 	}
 
 	cfg := export.Config{

@@ -13,4 +13,5 @@ const (
 	ONOSXAPPPCI    = "onos-xapppci"
 	ONOSTOPO       = "onos-topo"
 	ONOSUENIB      = "onos-uenib"
+	// ONOSPROFILE    = "onos-profile"
 )
