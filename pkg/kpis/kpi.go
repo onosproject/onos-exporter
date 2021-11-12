@@ -40,6 +40,9 @@ const (
 
 	OnosUenibUEsKPIName        = "ues"
 	OnosUenibUEsKPIDescription = "The uenib ues"
+
+	onosProfileKPIName        = "pprof"
+	onosProfileKPIDescription = "The onos profile"
 )
 
 // OnosE2tSubscriptions defines the factory implementation of a kpi
@@ -111,5 +114,14 @@ func OnosUenibUEs() *onosUenibUEs {
 	return &onosUenibUEs{
 		name:        OnosUenibUEsKPIName,
 		description: OnosUenibUEsKPIDescription,
+	}
+}
+
+// OnosProfileHeap defines the factory implementation of a kpi
+// onosProfileHeap having a well defined name and description.
+func OnosProfileHeap() *onosProfileHeap {
+	return &onosProfileHeap{
+		name:        onosProfileKPIName,
+		description: onosProfileKPIDescription,
 	}
 }

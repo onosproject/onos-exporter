@@ -22,7 +22,7 @@ var (
 		config.ONOSXAPPPCI,
 		config.ONOSTOPO,
 		config.ONOSUENIB,
-		// config.ONOSPROFILE,
+		config.ONOSPROFILE,
 	}
 )
 
