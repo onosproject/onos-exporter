@@ -59,7 +59,12 @@ func onosProfiles(addresses string) (kpis.KPI, error) {
 	onosProfileHeapKPI.Objects = make(map[string]kpis.HeapObject)
 
 	// Remove any temporary files created during pprof processing.
-	defer driver.CleanupTempFiles()
+	defer func() {
+		err := driver.CleanupTempFiles()
+		if err != nil {
+			log.Warn("onosProfiles could not cleam temp files")
+		}
+	}()
 
 	profileTypes := []string{"heap", "cpu", "goroutine"}
 
