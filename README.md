@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2019-present Open Networking Foundation <info@opennetworking.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # onos-exporter
 The exporter for ONOS SD-RAN (µONOS Architecture) to scrape, format, and export KPIs to TSDB databases (e.g., Prometheus).
 
