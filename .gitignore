@@ -18,6 +18,8 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
+.idea
+
 # Jenkins
 *report*.xml
 *coverage*.xml
@@ -26,4 +28,4 @@ vendor/
 build/_output/
 build/build-tools/
 
-
+venv
