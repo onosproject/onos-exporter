@@ -19,7 +19,7 @@ COPY build/ /go/src/github.com/onosproject/onos-exporter/build/
 
 RUN cd /go/src/github.com/onosproject/onos-exporter && GOFLAGS=-mod=vendor make ${ONOS_MAKE_TARGET}
 
-FROM alpine:3.12
+FROM alpine:3.20
 RUN apk add bash bash-completion libc6-compat
 
 RUN addgroup -S onos && adduser -S -G onos onos --home /home/onos
